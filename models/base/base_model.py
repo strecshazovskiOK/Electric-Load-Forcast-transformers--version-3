@@ -1,14 +1,15 @@
 # models/base/base_model.py
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any, Dict
 import torch
 from torch import nn
 
 from ..interfaces import ModelInterface
 
-class BaseModel(nn.Module, ModelInterface):
+class BaseModel(nn.Module, ModelInterface, ABC):
     """Base class for all models in the project."""
 
+    @abstractmethod
     def __init__(self, config: Dict[str, Any]) -> None:
         """
         Initializes the base model with the given configuration.

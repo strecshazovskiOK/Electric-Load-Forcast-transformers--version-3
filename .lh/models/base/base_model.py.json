@@ -1,0 +1,18 @@
+{
+    "sourceFile": "models/base/base_model.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1733090465153,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1733090465153,
+            "name": "Commit-0",
+            "content": "# models/base/base_model.py\r\nfrom abc import ABC, abstractmethod\r\nfrom typing import Any, Dict\r\nimport torch\r\nfrom torch import nn\r\n\r\nfrom ..interfaces import ModelInterface\r\n\r\nclass BaseModel(nn.Module, ModelInterface, ABC):\r\n    \"\"\"Base class for all models in the project.\"\"\"\r\n\r\n    @abstractmethod\r\n    def __init__(self, config: Dict[str, Any]) -> None:\r\n        \"\"\"\r\n        Initializes the base model with the given configuration.\r\n\r\n        Args:\r\n            config (Dict[str, Any]): Configuration dictionary for the model.\r\n        \"\"\"\r\n        super().__init__() # type: ignore\r\n        self.config = config\r\n\r\n    def get_model_config(self) -> Dict[str, Any]:\r\n        return self.config\r\n\r\n    @abstractmethod\r\n    def forward(self, *args: torch.Tensor, **kwargs: Any) -> torch.Tensor:\r\n        \"\"\"Forward pass of the model.\"\"\"\r\n        pass\r\n\r\n    @abstractmethod\r\n    def get_input_dims(self) -> int:\r\n        \"\"\"Get the input dimensions required by the model.\"\"\"\r\n        pass\r\n\r\n    @abstractmethod\r\n    def get_output_dims(self) -> int:\r\n        \"\"\"Get the output dimensions of the model.\"\"\"\r\n        pass\r\n\r\n\r\n    @classmethod\r\n    def from_config(cls, config: Dict[str, Any]) -> 'BaseModel':\r\n        \"\"\"Create a model instance from configuration.\"\"\"\r\n        return cls(config)\r\n"
+        }
+    ]
+}

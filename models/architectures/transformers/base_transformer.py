@@ -1,4 +1,3 @@
-# models/architectures/transformers/base_transformer.py
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any, Tuple
 import torch
@@ -6,7 +5,7 @@ from torch import nn, Tensor
 
 from models.base.base_model import BaseModel
 from models.components.embeddings import CombinedEmbedding
-
+from models.components.attention import MultiHeadAttention
 
 
 class BaseTransformer(BaseModel, ABC):
@@ -20,6 +19,7 @@ class BaseTransformer(BaseModel, ABC):
         self.d_ff = config['d_ff']
         self.dropout = config['dropout']
         self.input_features = config['input_features']
+        self.batch_first = config.get('batch_first', True)  # Default to batch_first=True
 
         # Common components with proper initialization
         self.encoder_embedding = CombinedEmbedding(
@@ -59,10 +59,16 @@ class BaseTransformer(BaseModel, ABC):
         src_key_padding_mask: Optional[Tensor] = None,
     ) -> Tensor:
         """Encode input sequence."""
+        # Apply embedding
         src = self.encoder_embedding(src)
+        
+        # Pass through encoder layers
         for layer in self.encoder_layers:
-            # Pass only src and mask to encoder layer
-            src = layer(src, mask=src_mask, src_key_padding_mask=src_key_padding_mask)
+            src = layer(
+                src,
+                src_mask=src_mask, 
+                src_key_padding_mask=src_key_padding_mask
+            )
         return src
 
     def decode(
@@ -70,12 +76,15 @@ class BaseTransformer(BaseModel, ABC):
         tgt: Tensor,
         memory: Tensor,
         tgt_mask: Optional[Tensor] = None,
-        tgt_key_padding_mask: Optional[Tensor] = None,
         memory_mask: Optional[Tensor] = None,
+        tgt_key_padding_mask: Optional[Tensor] = None,
         memory_key_padding_mask: Optional[Tensor] = None,
     ) -> Tensor:
         """Decode target sequence."""
+        # Apply embedding
         tgt = self.decoder_embedding(tgt)
+        
+        # Pass through decoder layers
         for layer in self.decoder_layers:
             tgt = layer(
                 tgt,
@@ -96,9 +105,7 @@ class BaseTransformer(BaseModel, ABC):
         src_key_padding_mask: Optional[Tensor] = None,
         tgt_key_padding_mask: Optional[Tensor] = None,
     ) -> Tensor:
-        """
-        Forward pass that returns only the final output.
-        """
+        """Forward pass that returns only the final output."""
         # Encode source sequence
         memory = self.encode(src, src_mask, src_key_padding_mask)
         
@@ -107,8 +114,8 @@ class BaseTransformer(BaseModel, ABC):
             tgt,
             memory,
             tgt_mask=tgt_mask,
-            tgt_key_padding_mask=tgt_key_padding_mask,
             memory_mask=src_mask,
+            tgt_key_padding_mask=tgt_key_padding_mask,
             memory_key_padding_mask=src_key_padding_mask
         )
         
@@ -116,6 +123,14 @@ class BaseTransformer(BaseModel, ABC):
         output = self.output_projection(output)
         
         return output
+
+    def generate_square_subsequent_mask(self, sz: int) -> Tensor:
+        """Generate a square mask for the sequence. 
+        The masked positions are filled with float('-inf'). Unmasked positions are filled with float(0.0).
+        """
+        mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
+        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
+        return mask
 
     def get_input_dims(self) -> int:
         return self.input_features
