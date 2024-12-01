@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 17,
+            "activePatchIndex": 18,
             "patches": [
                 {
                     "date": 1733003883280,
@@ -76,6 +76,10 @@
                 {
                     "date": 1733066801206,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -59,10 +59,9 @@\n         \"one_hot_time_variables\": False,\r\n         \"normalize_data\": True,\r\n         \"scaling_method\": \"standard\",\r\n         \"time_series_scaler\": StandardScaler(),\r\n-        \"time_resolution_minutes\": 15,\r\n-        \"points_per_hour\": 4,\r\n+        \"time_resolution_minutes\": 15,  # We only specify the resolution\r\n         \"add_time_features\": True,\r\n         \"add_holiday_features\": True,\r\n         \"add_weather_features\": False\r\n     }\r\n"
+                },
+                {
+                    "date": 1733088299204,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,5 @@\n+# path: pipeline/implementations/time_series_pipeline.py\r\n import argparse\r\n from pathlib import Path\r\n from typing import Dict, Any, Tuple\r\n \r\n"
                 }
             ],
             "date": 1733003883280,
