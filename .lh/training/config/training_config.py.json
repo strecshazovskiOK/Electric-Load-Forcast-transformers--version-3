@@ -1,0 +1,30 @@
+{
+    "sourceFile": "training/config/training_config.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 3,
+            "patches": [
+                {
+                    "date": 1733004261523,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1733066947979,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,7 @@\n # training/config/training_config.py\r\n-from dataclasses import dataclass\r\n-from typing import Optional\r\n+from dataclasses import dataclass, field\r\n+from typing import Any, Dict, Optional\r\n \r\n @dataclass\r\n class TrainingConfig:\r\n     \"\"\"Base training configuration.\"\"\"\r\n@@ -28,5 +28,10 @@\n     transformer_use_auto_regression: bool = False\r\n     learning_rate_scheduler_step: int = 30\r\n     learning_rate_scheduler_gamma: float = 0.1\r\n     attention_dropout: float = 0.1\r\n-    gradient_clipping: Optional[float] = None  # Added this line\n\\ No newline at end of file\n+    gradient_clipping: Optional[float] = None  # Added this line\r\n+    optimizer: str = 'adam'\r\n+    optimizer_config: Dict[str, Any] = field(default_factory=dict)\r\n+    criterion: str = 'mse'\r\n+    criterion_config: Dict[str, Any] = field(default_factory=dict)\r\n+    device: str = 'cuda'\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1733067072861,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,7 @@\n # training/config/training_config.py\r\n-from dataclasses import dataclass, field\r\n-from typing import Any, Dict, Optional\r\n+from dataclasses import dataclass\r\n+from typing import Optional\r\n \r\n @dataclass\r\n class TrainingConfig:\r\n     \"\"\"Base training configuration.\"\"\"\r\n@@ -29,9 +29,5 @@\n     learning_rate_scheduler_step: int = 30\r\n     learning_rate_scheduler_gamma: float = 0.1\r\n     attention_dropout: float = 0.1\r\n     gradient_clipping: Optional[float] = None  # Added this line\r\n-    optimizer: str = 'adam'\r\n-    optimizer_config: Dict[str, Any] = field(default_factory=dict)\r\n-    criterion: str = 'mse'\r\n-    criterion_config: Dict[str, Any] = field(default_factory=dict)\r\n-    device: str = 'cuda'\n\\ No newline at end of file\n+    \n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1733067338632,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,7 @@\n # training/config/training_config.py\r\n-from dataclasses import dataclass\r\n-from typing import Optional\r\n+from dataclasses import dataclass, field\r\n+from typing import Any, Dict, Optional\r\n \r\n @dataclass\r\n class TrainingConfig:\r\n     \"\"\"Base training configuration.\"\"\"\r\n@@ -29,5 +29,10 @@\n     learning_rate_scheduler_step: int = 30\r\n     learning_rate_scheduler_gamma: float = 0.1\r\n     attention_dropout: float = 0.1\r\n     gradient_clipping: Optional[float] = None  # Added this line\r\n+    optimizer: str = 'adam'\r\n+    optimizer_config: Dict[str, Any] = field(default_factory=dict)\r\n+    scheduler: Optional[str] = None\r\n+    scheduler_config: Dict[str, Any] = field(default_factory=dict)\r\n+\r\n     \n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1733004261523,
+            "name": "Commit-0",
+            "content": "# training/config/training_config.py\r\nfrom dataclasses import dataclass\r\nfrom typing import Optional\r\n\r\n@dataclass\r\nclass TrainingConfig:\r\n    \"\"\"Base training configuration.\"\"\"\r\n    learning_rate: float\r\n    max_epochs: int\r\n    use_early_stopping: bool\r\n    early_stopping_patience: int\r\n    batch_size: int = 32\r\n    device: str = 'cuda'\r\n\r\n@dataclass\r\nclass NeuralNetTrainingConfig(TrainingConfig):\r\n    \"\"\"Neural network specific training configuration.\"\"\"\r\n    learning_rate_scheduler_step: int = 30\r\n    learning_rate_scheduler_gamma: float = 0.1\r\n    gradient_clipping: Optional[float] = None\r\n\r\n@dataclass\r\nclass TransformerTrainingConfig(TrainingConfig):\r\n    \"\"\"Transformer specific training configuration.\"\"\"\r\n    transformer_labels_count: int = 1\r\n    forecasting_horizon: int = 24\r\n    transformer_use_teacher_forcing: bool = False\r\n    transformer_use_auto_regression: bool = False\r\n    learning_rate_scheduler_step: int = 30\r\n    learning_rate_scheduler_gamma: float = 0.1\r\n    attention_dropout: float = 0.1\r\n    gradient_clipping: Optional[float] = None  # Added this line"
+        }
+    ]
+}

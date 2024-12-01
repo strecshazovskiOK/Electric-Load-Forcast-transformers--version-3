@@ -1,0 +1,275 @@
+2024-11-28 22:47:24,482 - __main__ - INFO - Starting training pipeline...
+2024-11-28 22:47:24,482 - __main__ - INFO - Creating configurations...
+2024-11-28 22:47:24,482 - __main__ - DEBUG - Selected model type: ModelType.VANILLA_TRANSFORMER
+2024-11-28 22:47:24,482 - __main__ - DEBUG - Model configuration created: {'model_type': <ModelType.VANILLA_TRANSFORMER: 3>, 'input_features': 24, 'output_dim': 1, 'hidden_dims': [64, 32], 'activation': 'relu', 'dropout': 0.1, 'd_model': 512, 'n_heads': 8, 'n_encoder_layers': 3, 'n_decoder_layers': 3, 'd_ff': 2048, 'batch_size': 32, 'learning_rate': 0.001, 'max_epochs': 100, 'optimizer': 'adam', 'optimizer_config': {}, 'scheduler': None, 'scheduler_config': {}, 'criterion': 'mse', 'criterion_config': {}, 'device': 'cuda'}
+2024-11-28 22:47:24,498 - __main__ - DEBUG - Training configuration created: {'learning_rate': 0.001, 'max_epochs': 100, 'use_early_stopping': True, 'early_stopping_patience': 10, 'batch_size': 32, 'device': 'cuda'}
+2024-11-28 22:47:24,498 - __main__ - DEBUG - Pipeline configuration created: {'data_path': WindowsPath('data/your_data.csv'), 'time_variable': 'timestamp', 'target_variable': 'target', 'train_interval': TimeInterval(min_date=datetime.date(2015, 1, 1), max_date=datetime.date(2015, 12, 31)), 'validation_interval': TimeInterval(min_date=datetime.date(2016, 1, 1), max_date=datetime.date(2016, 3, 31)), 'test_interval': TimeInterval(min_date=datetime.date(2016, 4, 1), max_date=datetime.date(2016, 6, 30)), 'model_config': ModelConfig(model_type=<ModelType.VANILLA_TRANSFORMER: 3>, input_features=24, output_dim=1, hidden_dims=[64, 32], activation='relu', dropout=0.1, d_model=512, n_heads=8, n_encoder_layers=3, n_decoder_layers=3, d_ff=2048, batch_size=32, learning_rate=0.001, max_epochs=100, optimizer='adam', optimizer_config={}, scheduler=None, scheduler_config={}, criterion='mse', criterion_config={}, device='cuda'), 'training_config': TrainingConfig(learning_rate=0.001, max_epochs=100, use_early_stopping=True, early_stopping_patience=10, batch_size=32, device='cuda'), 'experiment_config': ExperimentConfig(experiments_dir=WindowsPath('experiments'), artifacts_dir=WindowsPath('artifacts'), use_timestamps=True, save_artifacts=True, compress_results=False, track_metrics=True, track_artifacts=True, extra_configs={}), 'save_model': True, 'model_save_path': WindowsPath('models/trained_model.pt'), 'device': 'cuda'}
+2024-11-28 22:47:24,498 - __main__ - INFO - Creating pipeline...
+2024-11-28 22:47:24,586 - __main__ - DEBUG - Pipeline created successfully
+2024-11-28 22:47:24,586 - __main__ - INFO - Running pipeline...
+2024-11-28 22:47:27,020 - __main__ - ERROR - Pipeline execution failed
+2024-11-28 22:47:27,020 - __main__ - ERROR - Error type: AttributeError
+2024-11-28 22:47:27,020 - __main__ - ERROR - Error message: 'dict' object has no attribute '__dict__'
+2024-11-28 22:47:27,036 - __main__ - ERROR - Traceback:
+Traceback (most recent call last):
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\train.py", line 125, in main
+    eval_results = pipeline.run()
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\pipeline\pipeline.py", line 148, in run
+    experiment = self.experiment_tracker.start_run(metadata)
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\experiments\tracking.py", line 57, in start_run
+    self._save_runs()
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\experiments\tracking.py", line 98, in _save_runs
+    runs_data = {
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\experiments\tracking.py", line 100, in <dictcomp>
+    'metadata': run.metadata.__dict__,
+AttributeError: 'dict' object has no attribute '__dict__'
+
+2024-11-28 22:47:27,036 - __main__ - ERROR - Pipeline state at failure:
+2024-11-28 22:47:27,037 - __main__ - ERROR - Model state: {'training': True, '_parameters': OrderedDict(), '_buffers': OrderedDict(), '_non_persistent_buffers_set': set(), '_backward_pre_hooks': OrderedDict(), '_backward_hooks': OrderedDict(), '_is_full_backward_hook': None, '_forward_hooks': OrderedDict(), '_forward_hooks_with_kwargs': OrderedDict(), '_forward_hooks_always_called': OrderedDict(), '_forward_pre_hooks': OrderedDict(), '_forward_pre_hooks_with_kwargs': OrderedDict(), '_state_dict_hooks': OrderedDict(), '_state_dict_pre_hooks': OrderedDict(), '_load_state_dict_pre_hooks': OrderedDict(), '_load_state_dict_post_hooks': OrderedDict(), '_modules': OrderedDict([('encoder_embedding', CombinedEmbedding(
+  (value_embedding): ValueEmbedding(
+    (projection): Linear(in_features=24, out_features=512, bias=True)
+  )
+  (positional_embedding): PositionalEmbedding(
+    (dropout): Dropout(p=0.1, inplace=False)
+  )
+)), ('decoder_embedding', CombinedEmbedding(
+  (value_embedding): ValueEmbedding(
+    (projection): Linear(in_features=24, out_features=512, bias=True)
+  )
+  (positional_embedding): PositionalEmbedding(
+    (dropout): Dropout(p=0.1, inplace=False)
+  )
+)), ('encoder_layers', ModuleList(
+  (0-2): 3 x EncoderLayer(
+    (self_attn): MultiHeadAttention(
+      (q_proj): Linear(in_features=512, out_features=512, bias=True)
+      (k_proj): Linear(in_features=512, out_features=512, bias=True)
+      (v_proj): Linear(in_features=512, out_features=512, bias=True)
+      (out_proj): Linear(in_features=512, out_features=512, bias=True)
+      (dropout): Dropout(p=0.1, inplace=False)
+    )
+    (feed_forward): FeedForwardNetwork(
+      (linear1): Linear(in_features=512, out_features=2048, bias=True)
+      (linear2): Linear(in_features=2048, out_features=512, bias=True)
+      (dropout): Dropout(p=0.1, inplace=False)
+      (activation): ReLU()
+    )
+    (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    (dropout): Dropout(p=0.1, inplace=False)
+  )
+)), ('decoder_layers', ModuleList(
+  (0-2): 3 x DecoderLayer(
+    (self_attn): MultiHeadAttention(
+      (q_proj): Linear(in_features=512, out_features=512, bias=True)
+      (k_proj): Linear(in_features=512, out_features=512, bias=True)
+      (v_proj): Linear(in_features=512, out_features=512, bias=True)
+      (out_proj): Linear(in_features=512, out_features=512, bias=True)
+      (dropout): Dropout(p=0.1, inplace=False)
+    )
+    (cross_attn): MultiHeadAttention(
+      (q_proj): Linear(in_features=512, out_features=512, bias=True)
+      (k_proj): Linear(in_features=512, out_features=512, bias=True)
+      (v_proj): Linear(in_features=512, out_features=512, bias=True)
+      (out_proj): Linear(in_features=512, out_features=512, bias=True)
+      (dropout): Dropout(p=0.1, inplace=False)
+    )
+    (feed_forward): FeedForwardNetwork(
+      (linear1): Linear(in_features=512, out_features=2048, bias=True)
+      (linear2): Linear(in_features=2048, out_features=512, bias=True)
+      (dropout): Dropout(p=0.1, inplace=False)
+      (activation): ReLU()
+    )
+    (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    (dropout): Dropout(p=0.1, inplace=False)
+  )
+)), ('output_projection', Linear(in_features=512, out_features=1, bias=True))]), 'config': {'model_type': <ModelType.VANILLA_TRANSFORMER: 3>, 'input_features': 24, 'output_dim': 1, 'hidden_dims': [64, 32], 'activation': 'relu', 'dropout': 0.1, 'd_model': 512, 'n_heads': 8, 'n_encoder_layers': 3, 'n_decoder_layers': 3, 'd_ff': 2048, 'batch_size': 32, 'learning_rate': 0.001, 'max_epochs': 100, 'optimizer': 'adam', 'optimizer_config': {}, 'scheduler_config': {}, 'criterion': 'mse', 'criterion_config': {}, 'device': 'cuda'}, 'd_model': 512, 'n_heads': 8, 'n_encoder_layers': 3, 'n_decoder_layers': 3, 'd_ff': 2048, 'dropout': 0.1, 'input_features': 24}
+2024-11-28 22:47:27,041 - __main__ - ERROR - Fatal error in main execution
+2024-11-28 22:47:27,041 - __main__ - ERROR - Error type: AttributeError
+2024-11-28 22:47:27,041 - __main__ - ERROR - Error message: 'dict' object has no attribute '__dict__'
+2024-11-28 22:47:27,041 - __main__ - ERROR - Full traceback:
+Traceback (most recent call last):
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\train.py", line 125, in main
+    eval_results = pipeline.run()
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\pipeline\pipeline.py", line 148, in run
+    experiment = self.experiment_tracker.start_run(metadata)
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\experiments\tracking.py", line 57, in start_run
+    self._save_runs()
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\experiments\tracking.py", line 98, in _save_runs
+    runs_data = {
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\experiments\tracking.py", line 100, in <dictcomp>
+    'metadata': run.metadata.__dict__,
+AttributeError: 'dict' object has no attribute '__dict__'
+
+2024-11-28 22:54:20,881 - __main__ - INFO - Starting training pipeline...
+2024-11-28 22:54:20,881 - __main__ - INFO - Creating configurations...
+2024-11-28 22:54:20,881 - __main__ - DEBUG - Selected model type: ModelType.VANILLA_TRANSFORMER
+2024-11-28 22:54:20,881 - __main__ - DEBUG - Model configuration created: {'model_type': <ModelType.VANILLA_TRANSFORMER: 3>, 'input_features': 24, 'output_dim': 1, 'hidden_dims': [64, 32], 'activation': 'relu', 'dropout': 0.1, 'd_model': 512, 'n_heads': 8, 'n_encoder_layers': 3, 'n_decoder_layers': 3, 'd_ff': 2048, 'batch_size': 32, 'learning_rate': 0.001, 'max_epochs': 100, 'optimizer': 'adam', 'optimizer_config': {}, 'scheduler': None, 'scheduler_config': {}, 'criterion': 'mse', 'criterion_config': {}, 'device': 'cuda'}
+2024-11-28 22:54:20,882 - __main__ - DEBUG - Training configuration created: {'learning_rate': 0.001, 'max_epochs': 100, 'use_early_stopping': True, 'early_stopping_patience': 10, 'batch_size': 32, 'device': 'cuda'}
+2024-11-28 22:54:20,882 - __main__ - DEBUG - Pipeline configuration created: {'data_path': WindowsPath('data/your_data.csv'), 'time_variable': 'timestamp', 'target_variable': 'target', 'train_interval': TimeInterval(min_date=datetime.date(2015, 1, 1), max_date=datetime.date(2015, 12, 31)), 'validation_interval': TimeInterval(min_date=datetime.date(2016, 1, 1), max_date=datetime.date(2016, 3, 31)), 'test_interval': TimeInterval(min_date=datetime.date(2016, 4, 1), max_date=datetime.date(2016, 6, 30)), 'model_config': ModelConfig(model_type=<ModelType.VANILLA_TRANSFORMER: 3>, input_features=24, output_dim=1, hidden_dims=[64, 32], activation='relu', dropout=0.1, d_model=512, n_heads=8, n_encoder_layers=3, n_decoder_layers=3, d_ff=2048, batch_size=32, learning_rate=0.001, max_epochs=100, optimizer='adam', optimizer_config={}, scheduler=None, scheduler_config={}, criterion='mse', criterion_config={}, device='cuda'), 'training_config': TrainingConfig(learning_rate=0.001, max_epochs=100, use_early_stopping=True, early_stopping_patience=10, batch_size=32, device='cuda'), 'experiment_config': ExperimentConfig(experiments_dir=WindowsPath('experiments'), artifacts_dir=WindowsPath('artifacts'), use_timestamps=True, save_artifacts=True, compress_results=False, track_metrics=True, track_artifacts=True, extra_configs={}), 'save_model': True, 'model_save_path': WindowsPath('models/trained_model.pt'), 'device': 'cuda'}
+2024-11-28 22:54:20,882 - __main__ - INFO - Creating pipeline...
+2024-11-28 22:54:20,962 - __main__ - DEBUG - Pipeline created successfully
+2024-11-28 22:54:20,962 - __main__ - INFO - Running pipeline...
+2024-11-28 22:54:23,079 - experiments.tracking - DEBUG - Starting new run with metadata type: <class 'dict'>
+2024-11-28 22:54:23,080 - __main__ - ERROR - Pipeline execution failed
+2024-11-28 22:54:23,080 - __main__ - ERROR - Error type: TypeError
+2024-11-28 22:54:23,080 - __main__ - ERROR - Error message: train() takes from 1 to 2 positional arguments but 3 were given
+2024-11-28 22:54:23,081 - __main__ - ERROR - Traceback:
+Traceback (most recent call last):
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\train.py", line 125, in main
+    eval_results = pipeline.run()
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\pipeline\pipeline.py", line 192, in run
+    raise e
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\pipeline\pipeline.py", line 152, in run
+    training_report = self.model.train(
+TypeError: train() takes from 1 to 2 positional arguments but 3 were given
+
+2024-11-28 22:54:23,081 - __main__ - ERROR - Pipeline state at failure:
+2024-11-28 22:54:23,081 - __main__ - ERROR - Model state: {'training': True, '_parameters': OrderedDict(), '_buffers': OrderedDict(), '_non_persistent_buffers_set': set(), '_backward_pre_hooks': OrderedDict(), '_backward_hooks': OrderedDict(), '_is_full_backward_hook': None, '_forward_hooks': OrderedDict(), '_forward_hooks_with_kwargs': OrderedDict(), '_forward_hooks_always_called': OrderedDict(), '_forward_pre_hooks': OrderedDict(), '_forward_pre_hooks_with_kwargs': OrderedDict(), '_state_dict_hooks': OrderedDict(), '_state_dict_pre_hooks': OrderedDict(), '_load_state_dict_pre_hooks': OrderedDict(), '_load_state_dict_post_hooks': OrderedDict(), '_modules': OrderedDict([('encoder_embedding', CombinedEmbedding(
+  (value_embedding): ValueEmbedding(
+    (projection): Linear(in_features=24, out_features=512, bias=True)
+  )
+  (positional_embedding): PositionalEmbedding(
+    (dropout): Dropout(p=0.1, inplace=False)
+  )
+)), ('decoder_embedding', CombinedEmbedding(
+  (value_embedding): ValueEmbedding(
+    (projection): Linear(in_features=24, out_features=512, bias=True)
+  )
+  (positional_embedding): PositionalEmbedding(
+    (dropout): Dropout(p=0.1, inplace=False)
+  )
+)), ('encoder_layers', ModuleList(
+  (0-2): 3 x EncoderLayer(
+    (self_attn): MultiHeadAttention(
+      (q_proj): Linear(in_features=512, out_features=512, bias=True)
+      (k_proj): Linear(in_features=512, out_features=512, bias=True)
+      (v_proj): Linear(in_features=512, out_features=512, bias=True)
+      (out_proj): Linear(in_features=512, out_features=512, bias=True)
+      (dropout): Dropout(p=0.1, inplace=False)
+    )
+    (feed_forward): FeedForwardNetwork(
+      (linear1): Linear(in_features=512, out_features=2048, bias=True)
+      (linear2): Linear(in_features=2048, out_features=512, bias=True)
+      (dropout): Dropout(p=0.1, inplace=False)
+      (activation): ReLU()
+    )
+    (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    (dropout): Dropout(p=0.1, inplace=False)
+  )
+)), ('decoder_layers', ModuleList(
+  (0-2): 3 x DecoderLayer(
+    (self_attn): MultiHeadAttention(
+      (q_proj): Linear(in_features=512, out_features=512, bias=True)
+      (k_proj): Linear(in_features=512, out_features=512, bias=True)
+      (v_proj): Linear(in_features=512, out_features=512, bias=True)
+      (out_proj): Linear(in_features=512, out_features=512, bias=True)
+      (dropout): Dropout(p=0.1, inplace=False)
+    )
+    (cross_attn): MultiHeadAttention(
+      (q_proj): Linear(in_features=512, out_features=512, bias=True)
+      (k_proj): Linear(in_features=512, out_features=512, bias=True)
+      (v_proj): Linear(in_features=512, out_features=512, bias=True)
+      (out_proj): Linear(in_features=512, out_features=512, bias=True)
+      (dropout): Dropout(p=0.1, inplace=False)
+    )
+    (feed_forward): FeedForwardNetwork(
+      (linear1): Linear(in_features=512, out_features=2048, bias=True)
+      (linear2): Linear(in_features=2048, out_features=512, bias=True)
+      (dropout): Dropout(p=0.1, inplace=False)
+      (activation): ReLU()
+    )
+    (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    (dropout): Dropout(p=0.1, inplace=False)
+  )
+)), ('output_projection', Linear(in_features=512, out_features=1, bias=True))]), 'config': {'model_type': <ModelType.VANILLA_TRANSFORMER: 3>, 'input_features': 24, 'output_dim': 1, 'hidden_dims': [64, 32], 'activation': 'relu', 'dropout': 0.1, 'd_model': 512, 'n_heads': 8, 'n_encoder_layers': 3, 'n_decoder_layers': 3, 'd_ff': 2048, 'batch_size': 32, 'learning_rate': 0.001, 'max_epochs': 100, 'optimizer': 'adam', 'optimizer_config': {}, 'scheduler_config': {}, 'criterion': 'mse', 'criterion_config': {}, 'device': 'cuda'}, 'd_model': 512, 'n_heads': 8, 'n_encoder_layers': 3, 'n_decoder_layers': 3, 'd_ff': 2048, 'dropout': 0.1, 'input_features': 24}
+2024-11-28 22:54:23,084 - __main__ - ERROR - Fatal error in main execution
+2024-11-28 22:54:23,084 - __main__ - ERROR - Error type: TypeError
+2024-11-28 22:54:23,084 - __main__ - ERROR - Error message: train() takes from 1 to 2 positional arguments but 3 were given
+2024-11-28 22:54:23,084 - __main__ - ERROR - Full traceback:
+Traceback (most recent call last):
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\train.py", line 125, in main
+    eval_results = pipeline.run()
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\pipeline\pipeline.py", line 192, in run
+    raise e
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\pipeline\pipeline.py", line 152, in run
+    training_report = self.model.train(
+TypeError: train() takes from 1 to 2 positional arguments but 3 were given
+
+2024-11-28 23:14:23,017 - __main__ - INFO - Starting training pipeline...
+2024-11-28 23:14:23,017 - __main__ - INFO - Creating configurations...
+2024-11-28 23:14:23,017 - __main__ - DEBUG - Selected model type: ModelType.VANILLA_TRANSFORMER
+2024-11-28 23:14:23,017 - __main__ - DEBUG - Model configuration created: {'model_type': <ModelType.VANILLA_TRANSFORMER: 3>, 'input_features': 24, 'output_dim': 1, 'hidden_dims': [64, 32], 'activation': 'relu', 'dropout': 0.1, 'd_model': 512, 'n_heads': 8, 'n_encoder_layers': 3, 'n_decoder_layers': 3, 'd_ff': 2048, 'batch_size': 32, 'learning_rate': 0.001, 'max_epochs': 100, 'optimizer': 'adam', 'optimizer_config': {}, 'scheduler': None, 'scheduler_config': {}, 'criterion': 'mse', 'criterion_config': {}, 'device': 'cuda'}
+2024-11-28 23:14:23,017 - __main__ - DEBUG - Training configuration created: {'learning_rate': 0.001, 'max_epochs': 100, 'use_early_stopping': True, 'early_stopping_patience': 10, 'batch_size': 32, 'device': 'cuda'}
+2024-11-28 23:14:23,017 - __main__ - DEBUG - Pipeline configuration created: {'data_path': WindowsPath('data/your_data.csv'), 'time_variable': 'timestamp', 'target_variable': 'target', 'train_interval': TimeInterval(min_date=datetime.date(2015, 1, 1), max_date=datetime.date(2015, 12, 31)), 'validation_interval': TimeInterval(min_date=datetime.date(2016, 1, 1), max_date=datetime.date(2016, 3, 31)), 'test_interval': TimeInterval(min_date=datetime.date(2016, 4, 1), max_date=datetime.date(2016, 6, 30)), 'model_config': ModelConfig(model_type=<ModelType.VANILLA_TRANSFORMER: 3>, input_features=24, output_dim=1, hidden_dims=[64, 32], activation='relu', dropout=0.1, d_model=512, n_heads=8, n_encoder_layers=3, n_decoder_layers=3, d_ff=2048, batch_size=32, learning_rate=0.001, max_epochs=100, optimizer='adam', optimizer_config={}, scheduler=None, scheduler_config={}, criterion='mse', criterion_config={}, device='cuda'), 'training_config': TrainingConfig(learning_rate=0.001, max_epochs=100, use_early_stopping=True, early_stopping_patience=10, batch_size=32, device='cuda'), 'experiment_config': ExperimentConfig(experiments_dir=WindowsPath('experiments'), artifacts_dir=WindowsPath('artifacts'), use_timestamps=True, save_artifacts=True, compress_results=False, track_metrics=True, track_artifacts=True, extra_configs={}), 'save_model': True, 'model_save_path': WindowsPath('models/trained_model.pt'), 'device': 'cuda'}
+2024-11-28 23:14:23,017 - __main__ - INFO - Creating pipeline...
+2024-11-28 23:14:23,018 - __main__ - ERROR - Failed to create pipeline
+2024-11-28 23:14:23,018 - __main__ - ERROR - Pipeline configuration: {'data_path': WindowsPath('data/your_data.csv'), 'time_variable': 'timestamp', 'target_variable': 'target', 'train_interval': TimeInterval(min_date=datetime.date(2015, 1, 1), max_date=datetime.date(2015, 12, 31)), 'validation_interval': TimeInterval(min_date=datetime.date(2016, 1, 1), max_date=datetime.date(2016, 3, 31)), 'test_interval': TimeInterval(min_date=datetime.date(2016, 4, 1), max_date=datetime.date(2016, 6, 30)), 'model_config': ModelConfig(model_type=<ModelType.VANILLA_TRANSFORMER: 3>, input_features=24, output_dim=1, hidden_dims=[64, 32], activation='relu', dropout=0.1, d_model=512, n_heads=8, n_encoder_layers=3, n_decoder_layers=3, d_ff=2048, batch_size=32, learning_rate=0.001, max_epochs=100, optimizer='adam', optimizer_config={}, scheduler=None, scheduler_config={}, criterion='mse', criterion_config={}, device='cuda'), 'training_config': TrainingConfig(learning_rate=0.001, max_epochs=100, use_early_stopping=True, early_stopping_patience=10, batch_size=32, device='cuda'), 'experiment_config': ExperimentConfig(experiments_dir=WindowsPath('experiments'), artifacts_dir=WindowsPath('artifacts'), use_timestamps=True, save_artifacts=True, compress_results=False, track_metrics=True, track_artifacts=True, extra_configs={}), 'save_model': True, 'model_save_path': WindowsPath('models/trained_model.pt'), 'device': 'cuda'}
+2024-11-28 23:14:23,018 - __main__ - ERROR - Fatal error in main execution
+2024-11-28 23:14:23,018 - __main__ - ERROR - Error type: TypeError
+2024-11-28 23:14:23,018 - __main__ - ERROR - Error message: __init__() got an unexpected keyword argument 'dataset_path'
+2024-11-28 23:14:23,020 - __main__ - ERROR - Full traceback:
+Traceback (most recent call last):
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\train.py", line 115, in main
+    pipeline = Pipeline(pipeline_config)
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\pipeline\pipeline.py", line 64, in __init__
+    self.experiment_tracker = ExperimentTracker(config.experiment_config)
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\experiments\tracking.py", line 43, in __init__
+    self._load_existing_runs()
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\experiments\tracking.py", line 54, in _load_existing_runs
+    metadata=ExperimentMetadata(**run_data['metadata']),
+TypeError: __init__() got an unexpected keyword argument 'dataset_path'
+
+2024-11-28 23:15:58,594 - __main__ - INFO - Starting training pipeline...
+2024-11-28 23:15:58,594 - __main__ - INFO - Creating configurations...
+2024-11-28 23:15:58,594 - __main__ - DEBUG - Selected model type: ModelType.VANILLA_TRANSFORMER
+2024-11-28 23:15:58,594 - __main__ - DEBUG - Model configuration created: {'model_type': <ModelType.VANILLA_TRANSFORMER: 3>, 'input_features': 24, 'output_dim': 1, 'hidden_dims': [64, 32], 'activation': 'relu', 'dropout': 0.1, 'd_model': 512, 'n_heads': 8, 'n_encoder_layers': 3, 'n_decoder_layers': 3, 'd_ff': 2048, 'batch_size': 32, 'learning_rate': 0.001, 'max_epochs': 100, 'optimizer': 'adam', 'optimizer_config': {}, 'scheduler': None, 'scheduler_config': {}, 'criterion': 'mse', 'criterion_config': {}, 'device': 'cuda'}
+2024-11-28 23:15:58,594 - __main__ - DEBUG - Training configuration created: {'learning_rate': 0.001, 'max_epochs': 100, 'use_early_stopping': True, 'early_stopping_patience': 10, 'batch_size': 32, 'device': 'cuda'}
+2024-11-28 23:15:58,595 - __main__ - DEBUG - Pipeline configuration created: {'data_path': WindowsPath('data/your_data.csv'), 'time_variable': 'timestamp', 'target_variable': 'target', 'train_interval': TimeInterval(min_date=datetime.date(2015, 1, 1), max_date=datetime.date(2015, 12, 31)), 'validation_interval': TimeInterval(min_date=datetime.date(2016, 1, 1), max_date=datetime.date(2016, 3, 31)), 'test_interval': TimeInterval(min_date=datetime.date(2016, 4, 1), max_date=datetime.date(2016, 6, 30)), 'model_config': ModelConfig(model_type=<ModelType.VANILLA_TRANSFORMER: 3>, input_features=24, output_dim=1, hidden_dims=[64, 32], activation='relu', dropout=0.1, d_model=512, n_heads=8, n_encoder_layers=3, n_decoder_layers=3, d_ff=2048, batch_size=32, learning_rate=0.001, max_epochs=100, optimizer='adam', optimizer_config={}, scheduler=None, scheduler_config={}, criterion='mse', criterion_config={}, device='cuda'), 'training_config': TrainingConfig(learning_rate=0.001, max_epochs=100, use_early_stopping=True, early_stopping_patience=10, batch_size=32, device='cuda'), 'experiment_config': ExperimentConfig(experiments_dir=WindowsPath('experiments'), artifacts_dir=WindowsPath('artifacts'), use_timestamps=True, save_artifacts=True, compress_results=False, track_metrics=True, track_artifacts=True, extra_configs={}), 'save_model': True, 'model_save_path': WindowsPath('models/trained_model.pt'), 'device': 'cuda'}
+2024-11-28 23:15:58,595 - __main__ - INFO - Creating pipeline...
+2024-11-28 23:15:58,595 - __main__ - ERROR - Failed to create pipeline
+2024-11-28 23:15:58,595 - __main__ - ERROR - Pipeline configuration: {'data_path': WindowsPath('data/your_data.csv'), 'time_variable': 'timestamp', 'target_variable': 'target', 'train_interval': TimeInterval(min_date=datetime.date(2015, 1, 1), max_date=datetime.date(2015, 12, 31)), 'validation_interval': TimeInterval(min_date=datetime.date(2016, 1, 1), max_date=datetime.date(2016, 3, 31)), 'test_interval': TimeInterval(min_date=datetime.date(2016, 4, 1), max_date=datetime.date(2016, 6, 30)), 'model_config': ModelConfig(model_type=<ModelType.VANILLA_TRANSFORMER: 3>, input_features=24, output_dim=1, hidden_dims=[64, 32], activation='relu', dropout=0.1, d_model=512, n_heads=8, n_encoder_layers=3, n_decoder_layers=3, d_ff=2048, batch_size=32, learning_rate=0.001, max_epochs=100, optimizer='adam', optimizer_config={}, scheduler=None, scheduler_config={}, criterion='mse', criterion_config={}, device='cuda'), 'training_config': TrainingConfig(learning_rate=0.001, max_epochs=100, use_early_stopping=True, early_stopping_patience=10, batch_size=32, device='cuda'), 'experiment_config': ExperimentConfig(experiments_dir=WindowsPath('experiments'), artifacts_dir=WindowsPath('artifacts'), use_timestamps=True, save_artifacts=True, compress_results=False, track_metrics=True, track_artifacts=True, extra_configs={}), 'save_model': True, 'model_save_path': WindowsPath('models/trained_model.pt'), 'device': 'cuda'}
+2024-11-28 23:15:58,595 - __main__ - ERROR - Fatal error in main execution
+2024-11-28 23:15:58,598 - __main__ - ERROR - Error type: ValueError
+2024-11-28 23:15:58,598 - __main__ - ERROR - Error message: Unknown model type: ModelType.VANILLA_TRANSFORMER
+2024-11-28 23:15:58,598 - __main__ - ERROR - Full traceback:
+Traceback (most recent call last):
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\train.py", line 115, in main
+    pipeline = Pipeline(pipeline_config)
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\pipeline\pipeline.py", line 65, in __init__
+    self._setup_components()
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\pipeline\pipeline.py", line 76, in _setup_components
+    self.model: BaseWrapper = ModelFactory.create(
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\models\registry\factory.py", line 59, in create
+    raise ValueError(f"Unknown model type: {model_type}")
+ValueError: Unknown model type: ModelType.VANILLA_TRANSFORMER
+
+2024-11-28 23:16:17,171 - __main__ - INFO - Starting training pipeline...
+2024-11-28 23:16:17,171 - __main__ - INFO - Creating configurations...
+2024-11-28 23:16:17,171 - __main__ - DEBUG - Selected model type: ModelType.VANILLA_TRANSFORMER
+2024-11-28 23:16:17,171 - __main__ - DEBUG - Model configuration created: {'model_type': <ModelType.VANILLA_TRANSFORMER: 3>, 'input_features': 24, 'output_dim': 1, 'hidden_dims': [64, 32], 'activation': 'relu', 'dropout': 0.1, 'd_model': 512, 'n_heads': 8, 'n_encoder_layers': 3, 'n_decoder_layers': 3, 'd_ff': 2048, 'batch_size': 32, 'learning_rate': 0.001, 'max_epochs': 100, 'optimizer': 'adam', 'optimizer_config': {}, 'scheduler': None, 'scheduler_config': {}, 'criterion': 'mse', 'criterion_config': {}, 'device': 'cuda'}
+2024-11-28 23:16:17,171 - __main__ - DEBUG - Training configuration created: {'learning_rate': 0.001, 'max_epochs': 100, 'use_early_stopping': True, 'early_stopping_patience': 10, 'batch_size': 32, 'device': 'cuda'}
+2024-11-28 23:16:17,172 - __main__ - DEBUG - Pipeline configuration created: {'data_path': WindowsPath('data/your_data.csv'), 'time_variable': 'timestamp', 'target_variable': 'target', 'train_interval': TimeInterval(min_date=datetime.date(2015, 1, 1), max_date=datetime.date(2015, 12, 31)), 'validation_interval': TimeInterval(min_date=datetime.date(2016, 1, 1), max_date=datetime.date(2016, 3, 31)), 'test_interval': TimeInterval(min_date=datetime.date(2016, 4, 1), max_date=datetime.date(2016, 6, 30)), 'model_config': ModelConfig(model_type=<ModelType.VANILLA_TRANSFORMER: 3>, input_features=24, output_dim=1, hidden_dims=[64, 32], activation='relu', dropout=0.1, d_model=512, n_heads=8, n_encoder_layers=3, n_decoder_layers=3, d_ff=2048, batch_size=32, learning_rate=0.001, max_epochs=100, optimizer='adam', optimizer_config={}, scheduler=None, scheduler_config={}, criterion='mse', criterion_config={}, device='cuda'), 'training_config': TrainingConfig(learning_rate=0.001, max_epochs=100, use_early_stopping=True, early_stopping_patience=10, batch_size=32, device='cuda'), 'experiment_config': ExperimentConfig(experiments_dir=WindowsPath('experiments'), artifacts_dir=WindowsPath('artifacts'), use_timestamps=True, save_artifacts=True, compress_results=False, track_metrics=True, track_artifacts=True, extra_configs={}), 'save_model': True, 'model_save_path': WindowsPath('models/trained_model.pt'), 'device': 'cuda'}
+2024-11-28 23:16:17,172 - __main__ - INFO - Creating pipeline...
+2024-11-28 23:16:17,172 - __main__ - ERROR - Failed to create pipeline
+2024-11-28 23:16:17,172 - __main__ - ERROR - Pipeline configuration: {'data_path': WindowsPath('data/your_data.csv'), 'time_variable': 'timestamp', 'target_variable': 'target', 'train_interval': TimeInterval(min_date=datetime.date(2015, 1, 1), max_date=datetime.date(2015, 12, 31)), 'validation_interval': TimeInterval(min_date=datetime.date(2016, 1, 1), max_date=datetime.date(2016, 3, 31)), 'test_interval': TimeInterval(min_date=datetime.date(2016, 4, 1), max_date=datetime.date(2016, 6, 30)), 'model_config': ModelConfig(model_type=<ModelType.VANILLA_TRANSFORMER: 3>, input_features=24, output_dim=1, hidden_dims=[64, 32], activation='relu', dropout=0.1, d_model=512, n_heads=8, n_encoder_layers=3, n_decoder_layers=3, d_ff=2048, batch_size=32, learning_rate=0.001, max_epochs=100, optimizer='adam', optimizer_config={}, scheduler=None, scheduler_config={}, criterion='mse', criterion_config={}, device='cuda'), 'training_config': TrainingConfig(learning_rate=0.001, max_epochs=100, use_early_stopping=True, early_stopping_patience=10, batch_size=32, device='cuda'), 'experiment_config': ExperimentConfig(experiments_dir=WindowsPath('experiments'), artifacts_dir=WindowsPath('artifacts'), use_timestamps=True, save_artifacts=True, compress_results=False, track_metrics=True, track_artifacts=True, extra_configs={}), 'save_model': True, 'model_save_path': WindowsPath('models/trained_model.pt'), 'device': 'cuda'}
+2024-11-28 23:16:17,172 - __main__ - ERROR - Fatal error in main execution
+2024-11-28 23:16:17,173 - __main__ - ERROR - Error type: ValueError
+2024-11-28 23:16:17,173 - __main__ - ERROR - Error message: Unknown model type: ModelType.VANILLA_TRANSFORMER
+2024-11-28 23:16:17,173 - __main__ - ERROR - Full traceback:
+Traceback (most recent call last):
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\train.py", line 115, in main
+    pipeline = Pipeline(pipeline_config)
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\pipeline\pipeline.py", line 65, in __init__
+    self._setup_components()
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\pipeline\pipeline.py", line 76, in _setup_components
+    self.model: BaseWrapper = ModelFactory.create(
+  File "C:\Projects\GradProject\TrainingModel\Electric-Load-Forcast-transformers- version 3\models\registry\factory.py", line 59, in create
+    raise ValueError(f"Unknown model type: {model_type}")
+ValueError: Unknown model type: ModelType.VANILLA_TRANSFORMER
+

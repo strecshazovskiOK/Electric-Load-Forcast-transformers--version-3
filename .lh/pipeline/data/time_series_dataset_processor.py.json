@@ -1,0 +1,18 @@
+{
+    "sourceFile": "pipeline/data/time_series_dataset_processor.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1733066459092,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1733066459092,
+            "name": "Commit-0",
+            "content": "\r\nimport pandas as pd\r\nimport numpy as np\r\nimport holidays\r\n\r\nclass TimeSeriesDatasetProcessor:\r\n    # ...existing code...\r\n    \r\n    def add_cyclical_features(self, df: pd.DataFrame) -> pd.DataFrame:\r\n        timestamp = pd.to_datetime(df[self.config.time_variable])\r\n        \r\n        # Hour of day\r\n        df['hour_sin'] = np.sin(2 * np.pi * timestamp.dt.hour / 24)\r\n        df['hour_cos'] = np.cos(2 * np.pi * timestamp.dt.hour / 24)\r\n        \r\n        # Day of week\r\n        df['dow_sin'] = np.sin(2 * np.pi * timestamp.dt.dayofweek / 7)\r\n        df['dow_cos'] = np.cos(2 * np.pi * timestamp.dt.dayofweek / 7)\r\n        \r\n        # Month\r\n        df['month_sin'] = np.sin(2 * np.pi * timestamp.dt.month / 12)\r\n        df['month_cos'] = np.cos(2 * np.pi * timestamp.dt.month / 12)\r\n        \r\n        return df\r\n\r\n    def add_calendar_features(self, df: pd.DataFrame) -> pd.DataFrame:\r\n        timestamp = pd.to_datetime(df[self.config.time_variable])\r\n        us_holidays = holidays.US()\r\n        \r\n        df['is_holiday'] = timestamp.map(lambda x: x in us_holidays).astype(int)\r\n        df['is_weekend'] = timestamp.dt.dayofweek.isin([5, 6]).astype(int)\r\n        \r\n        return df\r\n\r\n    def process(self, df: pd.DataFrame) -> pd.DataFrame:\r\n        \"\"\"Process the dataset with feature engineering.\"\"\"\r\n        processed_df = df.copy()\r\n        \r\n        if hasattr(self.config, 'add_time_features') and self.config.add_time_features:\r\n            processed_df = self.add_cyclical_features(processed_df)\r\n            \r\n        if hasattr(self.config, 'add_holiday_features') and self.config.add_holiday_features:\r\n            processed_df = self.add_calendar_features(processed_df)\r\n            \r\n        if hasattr(self.config, 'add_weather_features') and self.config.add_weather_features:\r\n            if not all(col in processed_df.columns for col in self.config.weather_variables):\r\n                raise ValueError(f\"Weather features {self.config.weather_variables} not found in dataset\")\r\n        \r\n        # ...existing processing code...\r\n        \r\n        return processed_df"
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "models/config/model_config.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1733061971711,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1733061971711,
+            "name": "Commit-0",
+            "content": "# models/config/model_config.py\r\nfrom dataclasses import dataclass, field\r\nfrom typing import Dict, Any, Optional, List\r\n\r\nfrom ..registry.model_types import ModelType\r\n\r\n@dataclass\r\nclass ModelConfig:\r\n    \"\"\"Configuration for model architecture.\"\"\"\r\n    model_type: ModelType\r\n    input_features: int\r\n    output_features: int = 1\r\n    d_model: int = 512\r\n    n_heads: int = 8\r\n    n_encoder_layers: int = 6\r\n    n_decoder_layers: int = 6\r\n    d_ff: int = 2048\r\n    dropout: float = 0.1\r\n    max_seq_length: int = 672  # Updated: 28 days * 24 hours * 4 intervals\r\n    transformer_labels_count: int = 48  # Updated: 12 hours * 4 intervals\r\n    points_per_interval: int = 4  # New field for 15-min intervals\r\n    \r\n    # Neural network specific\r\n    hidden_dims: List[int] = field(default_factory=lambda: [64, 32])\r\n    activation: str = 'relu'\r\n\r\n    # Training\r\n    batch_size: int = 32\r\n    learning_rate: float = 1e-3\r\n    max_epochs: int = 100\r\n    optimizer: str = 'adam'\r\n    optimizer_config: Dict[str, Any] = field(default_factory=dict)\r\n    scheduler: Optional[str] = None\r\n    scheduler_config: Dict[str, Any] = field(default_factory=dict)\r\n    criterion: str = 'mse'\r\n    criterion_config: Dict[str, Any] = field(default_factory=dict)\r\n\r\n    # Device\r\n    device: str = 'cuda'\r\n\r\n    def to_dict(self) -> Dict[str, Any]:\r\n        \"\"\"Convert config to dictionary.\"\"\"\r\n        return {k: v for k, v in self.__dict__.items() if v is not None}\r\n\r\ndef get_default_config(model_type: str) -> ModelConfig:\r\n    \"\"\"Get default configuration for specified model type.\"\"\"\r\n    base_config = {\r\n        'model_type': model_type,\r\n        'input_features': 1,\r\n        'output_dim': 1\r\n    }\r\n\r\n    if model_type in {'vanilla_transformer', 'conv_transformer', 'informer'}:\r\n        base_config.update({\r\n            'd_model': 512,\r\n            'n_heads': 8,\r\n            'n_encoder_layers': 3,\r\n            'n_decoder_layers': 3,\r\n            'd_ff': 2048,\r\n            'dropout': 0.1,\r\n        })\r\n\r\n    return ModelConfig(**base_config)"
+        }
+    ]
+}

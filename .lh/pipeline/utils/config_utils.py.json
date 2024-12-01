@@ -1,0 +1,18 @@
+{
+    "sourceFile": "pipeline/utils/config_utils.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1733004655385,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1733004655385,
+            "name": "Commit-0",
+            "content": "# pipeline/utils/config_utils.py\r\nfrom __future__ import annotations\r\n\r\nfrom pathlib import Path\r\nfrom typing import Dict, Any\r\n\r\nfrom data_loading.base.base_dataset import DatasetConfig\r\nfrom models.config.model_config import ModelConfig\r\nfrom models.registry.model_types import ModelType\r\n\r\nfrom ..config.pipeline_config import PipelineConfig\r\nfrom training.config import TrainingConfig, TransformerTrainingConfig  # Add import\r\n\r\ndef create_pipeline_config(\r\n        data_path: str | Path,\r\n        model_type: ModelType,\r\n        model_params: Dict[str, Any],\r\n        training_params: Dict[str, Any],\r\n        dataset_params: Dict[str, Any]\r\n) -> PipelineConfig:\r\n    \"\"\"Create a pipeline configuration from parameters.\"\"\"\r\n\r\n    # Create dataset config\r\n    dataset_config = DatasetConfig(**dataset_params)\r\n\r\n    # Create model config\r\n    model_config = ModelConfig(\r\n        model_type=model_type,  # Pass ModelType directly\r\n        **model_params\r\n    )\r\n\r\n    # Choose appropriate training config based on model type\r\n    if model_type.is_transformer:\r\n        training_config = TransformerTrainingConfig(**training_params)\r\n    else:\r\n        # Remove transformer-specific parameters for non-transformer models\r\n        base_params = {k: v for k, v in training_params.items() \r\n                    if not k.startswith('transformer_')}\r\n        training_config = TrainingConfig(**base_params)\r\n\r\n    # Create pipeline config\r\n    return PipelineConfig(\r\n        dataset_config=dataset_config,\r\n        model_config=model_config,\r\n        training_config=training_config,\r\n        data_path=Path(data_path)\r\n    )"
+        }
+    ]
+}

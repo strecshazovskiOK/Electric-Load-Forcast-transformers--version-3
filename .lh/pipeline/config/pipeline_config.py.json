@@ -1,0 +1,22 @@
+{
+    "sourceFile": "pipeline/config/pipeline_config.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1733061971709,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1733067741402,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,8 @@\n # pipeline/config/pipeline_config.py\r\n-from dataclasses import dataclass\r\n+from dataclasses import asdict, dataclass\r\n from pathlib import Path\r\n-from typing import Optional, Tuple\r\n+from typing import Any, Optional, Tuple\r\n from datetime import date\r\n from data_loading.base.base_dataset import DatasetConfig\r\n from models.config.model_config import ModelConfig\r\n from training.config import TrainingConfig\r\n@@ -35,5 +35,14 @@\n         date(2017, 3, 12)    # End date of your data\r\n     )\r\n \r\n     # Add data format configuration\r\n-    time_resolution_minutes: int = 15  # New field to specify data granularity\n\\ No newline at end of file\n+    time_resolution_minutes: int = 15  # New field to specify data granularity\r\n+    \r\n+    def get(self, key: str, default: Any = None) -> Any:\r\n+        \"\"\"Helper method to safely get configuration values.\"\"\"\r\n+        config_dict = asdict(self)\r\n+        # Check in all nested configs\r\n+        for config in [self.dataset_config, self.model_config, self.training_config]:\r\n+            if hasattr(config, key):\r\n+                return getattr(config, key)\r\n+        return config_dict.get(key, default)\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1733061971709,
+            "name": "Commit-0",
+            "content": "# pipeline/config/pipeline_config.py\r\nfrom dataclasses import dataclass\r\nfrom pathlib import Path\r\nfrom typing import Optional, Tuple\r\nfrom datetime import date\r\nfrom data_loading.base.base_dataset import DatasetConfig\r\nfrom models.config.model_config import ModelConfig\r\nfrom training.config import TrainingConfig\r\n\r\n@dataclass\r\nclass PipelineConfig:\r\n    \"\"\"Pipeline configuration combining dataset, model, and training settings.\"\"\"\r\n\r\n    # Core configurations\r\n    dataset_config: DatasetConfig\r\n    model_config: ModelConfig\r\n    training_config: TrainingConfig\r\n\r\n    # Data paths and settings\r\n    data_path: Path\r\n    model_save_path: Optional[Path] = None\r\n    experiment_save_path: Path = Path(\"experiments\")\r\n\r\n    # Data split dates\r\n    train_dates: Tuple[date, date] = (\r\n        date(2015, 10, 29),  # Start date of your data\r\n        date(2016, 10, 28)   # ~70% of data\r\n    )\r\n    val_dates: Tuple[date, date] = (\r\n        date(2016, 10, 29),  # ~15% of data\r\n        date(2017, 1, 28)\r\n    )\r\n    test_dates: Tuple[date, date] = (\r\n        date(2017, 1, 29),   # ~15% of data\r\n        date(2017, 3, 12)    # End date of your data\r\n    )\r\n\r\n    # Add data format configuration\r\n    time_resolution_minutes: int = 15  # New field to specify data granularity"
+        }
+    ]
+}
