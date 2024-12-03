@@ -59,7 +59,7 @@ class StandardDataset(BaseDataset):
         )
         month_feature = (
             OneHotTimeFeature(12) if self.config.one_hot_time_variables
-            else CyclicalTimeFeature(53)
+            else CyclicalTimeFeature(12)
         )
         workday_feature = WorkdayFeature()
 

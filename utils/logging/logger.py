@@ -1,6 +1,7 @@
 # utils/logging/logger.py
 import logging
 import sys
+import os
 from pathlib import Path
 from typing import Dict, Optional, Union
 
@@ -46,8 +47,22 @@ class Logger:
             
             formatter = logging.Formatter(' - '.join(format_parts))
 
-        # Add console handler
-        console_handler = ComponentHandler(self.config.component_name)
+        # Enable Windows console to process ANSI escape sequences
+        if sys.platform == 'win32':
+            os.system('color')
+
+        # Configure console output with UTF-8 encoding
+        if sys.platform == 'windows':
+            # Enable Windows console to process ANSI escape sequences
+            os.system('color')
+            # Set console to UTF-8 mode
+            os.system('chcp 65001')
+        
+        # Add console handler with proper encoding
+        console_handler = logging.StreamHandler(
+            open(sys.stdout.fileno(), mode='w', encoding='utf-8', errors='replace')
+            if sys.platform == 'windows' else sys.stdout
+        )
         console_handler.setFormatter(formatter)
         self.logger.addHandler(console_handler)
 
@@ -56,7 +71,8 @@ class Logger:
             file_handler = RotatingFileHandler(
                 str(self.config.file_path),
                 maxBytes=10*1024*1024,  # 10MB
-                backupCount=5
+                backupCount=5,
+                encoding='utf-8'
             )
             file_handler.setFormatter(formatter)
             self.logger.addHandler(file_handler)
@@ -70,20 +86,36 @@ class Logger:
 
     def debug(self, msg: str, extra: Optional[Dict] = None) -> None:
         """Log debug message."""
-        self.logger.debug(msg, extra={"extra_data": extra} if extra else None)
+        log_extra = {"component": self.config.component_name}
+        if extra:
+            log_extra.update(extra)
+        self.logger.debug(msg, extra=log_extra)
 
     def info(self, msg: str, extra: Optional[Dict] = None) -> None:
         """Log info message."""
-        self.logger.info(msg, extra={"extra_data": extra} if extra else None)
+        log_extra = {"component": self.config.component_name}
+        if extra:
+            log_extra.update(extra)
+        self.logger.info(msg, extra=log_extra)
+
 
     def warning(self, msg: str, extra: Optional[Dict] = None) -> None:
         """Log warning message."""
-        self.logger.warning(msg, extra={"extra_data": extra} if extra else None)
+        log_extra = {"component": self.config.component_name}
+        if extra:
+            log_extra.update(extra)
+        self.logger.warning(msg, extra=log_extra)
 
     def error(self, msg: str, extra: Optional[Dict] = None) -> None:
         """Log error message."""
-        self.logger.error(msg, extra={"extra_data": extra} if extra else None)
+        log_extra = {"component": self.config.component_name}
+        if extra:
+            log_extra.update(extra)
+        self.logger.error(msg, extra=log_extra)
 
     def critical(self, msg: str, extra: Optional[Dict] = None) -> None:
         """Log critical message."""
-        self.logger.critical(msg, extra={"extra_data": extra} if extra else None)
+        log_extra = {"component": self.config.component_name}
+        if extra:
+            log_extra.update(extra)
+        self.logger.critical(msg, extra=log_extra)

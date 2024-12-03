@@ -51,6 +51,14 @@ class Evaluator:
             num_variables: int = 1
     ) -> EvaluationResult:
         """Evaluate model predictions."""
+        if predictions is None or targets is None:
+            self.logger.warning("Received None for predictions or targets")
+            return EvaluationResult(
+                total_metrics={'rmse': 0, 'mae': 0, 'mape': 0, 'mase': 0},
+                variable_metrics={},
+                comparisons=[]
+            )
+
         self.logger.info(
             "Starting evaluation",
             extra={

@@ -4,6 +4,8 @@ import torch
 from torch import nn, Tensor
 
 from data_loading.types.interval_types import TimeInterval
+from utils.logging.logger import Logger
+from utils.logging.config import LoggerConfig, LogLevel
 
 from ..base_transformer import BaseTransformer
 
@@ -15,7 +17,8 @@ class BaseResolutionTransformer(BaseTransformer):
         # Call parent initialization first
         super().__init__(config)
         
-        print("DEBUG: BaseResolutionTransformer initialization")
+        self.logger = Logger.get_logger(__name__)
+        self.logger.debug("BaseResolutionTransformer initialization")
         
         # Resolution-specific configuration
         self.input_resolution = config['input_resolution_minutes']

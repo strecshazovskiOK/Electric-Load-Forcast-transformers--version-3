@@ -1,9 +1,10 @@
 # utils/logging/config.py
+import sys
+import logging
 from dataclasses import dataclass
 from enum import Enum
-import logging
+from typing import Optional
 from pathlib import Path
-from typing import Optional, Union
 
 class LogLevel(Enum):
     """Logging levels enumeration."""
@@ -23,4 +24,5 @@ class LoggerConfig:
     include_level: bool = True
     include_module: bool = True
     json_output: bool = False
-    component_name: str = "main"
+    component_name: str = "main"  # Ensure this is set appropriately
+    encoding: str = 'utf-8'

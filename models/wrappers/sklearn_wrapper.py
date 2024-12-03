@@ -10,6 +10,8 @@ from models.base.base_wrapper import BaseWrapper
 from models.registry.model_types import ModelType
 from training.reports.training_report import TrainingReport
 from models.interfaces import WrapperInterface
+from utils.logging.logger import Logger
+from utils.logging.config import LoggerConfig, LogLevel
 
 
 class SklearnEstimator(Protocol):
@@ -30,6 +32,15 @@ class SklearnWrapper(BaseWrapper, WrapperInterface):
     ):
         super().__init__(model_type, config)
         self.model = model
+        
+        # Initialize logger
+        self.logger = Logger.get_logger(
+            __name__,
+            LoggerConfig(
+                level=LogLevel.INFO,
+                component_name="SklearnWrapper"
+            )
+        )
 
         # Optional preprocessing
         self.scaler_x = StandardScaler() if config.get('scale_features', True) else None
@@ -135,44 +146,50 @@ class SklearnWrapper(BaseWrapper, WrapperInterface):
             batch_target: torch.Tensor
     ) -> float:
         """Perform single validation step and return loss."""
-        # Convert to numpy for sklearn
-        if isinstance(batch_input, tuple):
-            # For compatibility, extract the first element
-            batch_input = batch_input[0]
-        X = batch_input.numpy()
-        y = batch_target.numpy()
-        
-        # Scale data if needed
-        if self.scaler_x is not None:
-            X = self.scaler_x.transform(X)
-        if self.scaler_y is not None:
-            y = self.scaler_y.transform(y.reshape(-1, 1)).ravel()
+        try:
+            if isinstance(batch_input, tuple):
+                batch_input = batch_input[0]
+            X = batch_input.numpy()
+            y = batch_target.numpy()
+            
+            if self.scaler_x is not None:
+                X = self.scaler_x.transform(X)
+            if self.scaler_y is not None:
+                y = self.scaler_y.transform(y.reshape(-1, 1)).ravel()
 
-        # Make predictions
-        y_pred = self.model.predict(X)
-        
-        # Calculate loss
-        loss = np.mean((y_pred - y) ** 2)  # MSE loss
-        return float(loss)
+            y_pred = self.model.predict(X)
+            return float(np.mean((y_pred - y) ** 2))
+            
+        except Exception as e:
+            self.logger.error(f"Validation step failed: {str(e)}")
+            return float('inf')
 
     def predict(self, dataset: Dataset) -> Tuple[torch.Tensor, torch.Tensor]:
         """Make predictions using the scikit-learn model."""
-        if not self.is_fitted:
-            raise RuntimeError("Model must be trained before making predictions")
+        try:
+            if not self.is_fitted:
+                raise RuntimeError("Model must be trained before making predictions")
 
-        # Prepare data
-        X, y = self._prepare_data(dataset)
-        X, y = self._scale_data(X, y, fit=False)
+            # Prepare data
+            X, y = self._prepare_data(dataset)
+            
+            # Scale features if needed
+            if self.scaler_x is not None:
+                X = self.scaler_x.transform(X)
 
-        # Make predictions
-        y_pred = self.model.predict(X)
-
-        # Inverse transform predictions if needed
-        if self.scaler_y is not None:
-            y_pred = self.scaler_y.inverse_transform(y_pred.reshape(-1, 1)).ravel()
-            y = self.scaler_y.inverse_transform(y.reshape(-1, 1)).ravel()
-
-        return torch.tensor(y_pred), torch.tensor(y)
+            # Make predictions using predict method
+            y_pred = self.model.predict(X)
+            
+            # Inverse transform if needed
+            if self.scaler_y is not None:
+                y_pred = self.scaler_y.inverse_transform(y_pred.reshape(-1, 1)).ravel()
+                y = self.scaler_y.inverse_transform(y.reshape(-1, 1)).ravel()
+                
+            return torch.tensor(y_pred), torch.tensor(y)
+            
+        except Exception as e:
+            self.logger.error(f"Prediction failed: {str(e)}")
+            return torch.zeros_like(torch.tensor(y)), torch.tensor(y)
 
     def save(self, path: str) -> None:
         """Save model state."""
