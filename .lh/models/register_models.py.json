@@ -1,0 +1,22 @@
+{
+    "sourceFile": "models/register_models.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1733179517650,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1733179646021,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,16 @@\n+from models.registry.model_types import ModelType\r\n+from models.registry.factory import ModelFactory\r\n+from models.architectures.transformers.resolution_specific import (\r\n+    SubhourlyTransformer,\r\n+    HourlyTransformer,\r\n+    DailyTransformer,\r\n+    MonthlyTransformer\r\n+)\r\n+\r\n+def register_models():\r\n+    \"\"\"Register all model types with the registry.\"\"\"\r\n+    registry = ModelFactory._registry\r\n+    registry.register_model(ModelType.SUBHOURLY_TRANSFORMER, SubhourlyTransformer)\r\n+    registry.register_model(ModelType.HOURLY_TRANSFORMER, HourlyTransformer)\r\n+    registry.register_model(ModelType.DAILY_TRANSFORMER, DailyTransformer)\r\n+    registry.register_model(ModelType.MONTHLY_TRANSFORMER, MonthlyTransformer)\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1733179517650,
+            "name": "Commit-0",
+            "content": "\r\nfrom models.registry.model_types import ModelType\r\nfrom models.registry.model_registry import ModelRegistry\r\nfrom models.architectures.transformers.resolution_specific.subhourly_transformer import SubhourlyTransformer\r\nfrom models.architectures.transformers.resolution_specific.hourly_transformer import HourlyTransformer\r\nfrom models.architectures.transformers.resolution_specific.daily_transformer import DailyTransformer\r\nfrom models.architectures.transformers.resolution_specific.monthly_transformer import MonthlyTransformer\r\n\r\ndef register_models():\r\n    \"\"\"Register all model types with the registry.\"\"\"\r\n    ModelRegistry.register(ModelType.SUBHOURLY_TRANSFORMER, SubhourlyTransformer)\r\n    ModelRegistry.register(ModelType.HOURLY_TRANSFORMER, HourlyTransformer)\r\n    ModelRegistry.register(ModelType.DAILY_TRANSFORMER, DailyTransformer)\r\n    ModelRegistry.register(ModelType.MONTHLY_TRANSFORMER, MonthlyTransformer)"
+        }
+    ]
+}

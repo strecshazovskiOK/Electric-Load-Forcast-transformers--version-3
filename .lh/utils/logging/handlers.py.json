@@ -1,0 +1,18 @@
+{
+    "sourceFile": "utils/logging/handlers.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1733246314430,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1733246314430,
+            "name": "Commit-0",
+            "content": "# utils/logging/handlers.py\r\nimport logging\r\nimport logging.handlers\r\nimport sys\r\nfrom pathlib import Path\r\n\r\nclass RotatingFileHandler(logging.handlers.RotatingFileHandler):\r\n    \"\"\"Extended rotating file handler with automatic directory creation.\"\"\"\r\n    \r\n    def __init__(self, filename: str, *args, **kwargs):\r\n        Path(filename).parent.mkdir(parents=True, exist_ok=True)\r\n        super().__init__(filename, *args, **kwargs)\r\n\r\nclass ComponentHandler(logging.StreamHandler):\r\n    \"\"\"Handler that adds component information to log records.\"\"\"\r\n    \r\n    def __init__(self, component_name: str):\r\n        super().__init__(sys.stdout)\r\n        self.component_name = component_name\r\n        \r\n    def emit(self, record: logging.LogRecord):\r\n        record.component = self.component_name\r\n        super().emit(record)\r\n"
+        }
+    ]
+}

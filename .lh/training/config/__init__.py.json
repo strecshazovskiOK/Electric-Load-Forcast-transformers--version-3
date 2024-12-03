@@ -1,0 +1,26 @@
+{
+    "sourceFile": "training/config/__init__.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1733179016573,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1733179024088,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,4 @@\n # training/config/__init__.py\r\n-from .training_config import TrainingConfig, TransformerTrainingConfig\r\n+from .training_config import TrainingConfig, TransformerTrainingConfig, NeuralNetTrainingConfig\r\n \r\n\\ No newline at end of file\n-__all__ = ['TrainingConfig', 'TransformerTrainingConfig']\n+__all__ = ['TrainingConfig', 'TransformerTrainingConfig', 'NeuralNetTrainingConfig']\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1733179309287,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,4 @@\n # training/config/__init__.py\r\n-from .training_config import TrainingConfig, TransformerTrainingConfig, NeuralNetTrainingConfig\r\n+from .training_config import BaseConfig, TransformerTrainingConfig, ResolutionBasedTrainingConfig\r\n \r\n\\ No newline at end of file\n-__all__ = ['TrainingConfig', 'TransformerTrainingConfig', 'NeuralNetTrainingConfig']\n+__all__ = ['BaseConfig', 'TransformerTrainingConfig', 'ResolutionBasedTrainingConfig']\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1733179016573,
+            "name": "Commit-0",
+            "content": "# training/config/__init__.py\r\nfrom .training_config import TrainingConfig, TransformerTrainingConfig\r\n\r\n__all__ = ['TrainingConfig', 'TransformerTrainingConfig']"
+        }
+    ]
+}

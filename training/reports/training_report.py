@@ -9,7 +9,8 @@ class TrainingReport:
         learning_rates: Optional[List[float]] = None,
         epochs: Optional[int] = None,
         early_stopping_epoch: Optional[int] = None,
-        additional_metrics: Optional[Dict[str, List[float]]] = None
+        additional_metrics: Optional[Dict[str, List[float]]] = None,
+        metrics: Optional[Dict[str, Any]] = None  # Add for backward compatibility
     ):
         self.train_losses = train_losses
         self.val_losses = val_losses if val_losses is not None else []
@@ -17,6 +18,8 @@ class TrainingReport:
         self.epochs = epochs
         self.early_stopping_epoch = early_stopping_epoch
         self.additional_metrics = additional_metrics if additional_metrics is not None else {}
+        if metrics:
+            self.additional_metrics.update(metrics)
 
     def add_loss(self, train_loss: float, val_loss: Optional[float] = None, lr: Optional[float] = None) -> None:
         self.train_losses.append(train_loss)
@@ -51,7 +54,11 @@ class TrainingReport:
             return None
         return TrainingReport(
             train_losses=data['train_losses'],
-            val_losses=data['val_losses']
+            val_losses=data.get('val_losses'),
+            learning_rates=data.get('learning_rates'),
+            epochs=data.get('epochs'),
+            early_stopping_epoch=data.get('early_stopping_epoch'),
+            additional_metrics=data.get('additional_metrics')
         )
 
     @classmethod

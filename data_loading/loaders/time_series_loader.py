@@ -109,3 +109,8 @@ class TimeSeriesLoader(BaseLoader):
             return default_row
         
         return filtered_df
+
+    def resample_data(self, df: pd.DataFrame, target_resolution_minutes: int) -> pd.DataFrame:
+        """Resample data to match the target resolution."""
+        # Implementation for resampling data
+        return df  # Ensure it returns a DataFrame

@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1733004103516,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1733176557188,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,29 @@\n+# path: training/config.py\r\n+from dataclasses import dataclass, field\r\n+\r\n+@dataclass\r\n+class TrainingConfig:\r\n+    \"\"\"Base training configuration.\"\"\"\r\n+    learning_rate: float\r\n+    max_epochs: int\r\n+    use_early_stopping: bool\r\n+    early_stopping_patience: int\r\n+    batch_size: int\r\n+    device: str\r\n+    gradient_clip_val: float = 1.0\r\n+\r\n+@dataclass\r\n+class TransformerTrainingConfig:\r\n+    \"\"\"Training configuration specific to transformer models.\"\"\"\r\n+    # Required fields (no defaults)\r\n+    learning_rate: float\r\n+    max_epochs: int\r\n+    use_early_stopping: bool\r\n+    early_stopping_patience: int\r\n+    batch_size: int\r\n+    device: str\r\n+    transformer_labels_count: int\r\n+    forecasting_horizon: int\r\n+    transformer_use_teacher_forcing: bool\r\n+    # Optional fields with defaults last\r\n+    gradient_clip_val: float = 1.0\r\n"
                 }
             ],
             "date": 1733004103516,

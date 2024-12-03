@@ -2,25 +2,126 @@ import math
 import torch
 from torch import nn, Tensor
 from typing import Optional
+from utils.logging.logger import Logger
+
+# Get module logger
+logger = Logger.get_logger(__name__)
+
+import math
+import torch
+from torch import nn, Tensor
 
 class ValueEmbedding(nn.Module):
-    """Projects time series values to model dimension."""
-
-    def __init__(self, d_model: int, time_series_features: int = 1):
+    def __init__(self, d_model: int, input_features: int):
         super().__init__()
-        self.linear = nn.Linear(time_series_features, d_model)
+        self.d_model = d_model
+        self.input_features = input_features
+        self.debug_counter = 0
+        logger.debug(f"Initializing ValueEmbedding: d_model={d_model}, features={input_features}")
+        
+        self.linear = nn.Linear(input_features, d_model)
+        
+        with torch.no_grad():
+            nn.init.xavier_uniform_(self.linear.weight, gain=1/math.sqrt(input_features))
+            if self.linear.bias is not None:
+                nn.init.zeros_(self.linear.bias)
 
     def forward(self, x: Tensor) -> Tensor:
-        """
-        Creates from the given tensor a linear projection.
-
-        Args:
-            x: the input tensor to project, shape: [batch_size, sequence_length, features]
-        Returns:
-            the projected tensor of shape: [batch_size, sequence_length, model_dimension]
-        """
+        # Print debug info only every 100 calls
+        self.debug_counter += 1
+        if self.debug_counter % 100 == 1:
+            logger.debug(
+                f"ValueEmbedding forward - "
+                f"shape: {x.shape}, "
+                f"range: [{x.min().item():.2f}, {x.max().item():.2f}], "
+                f"device: {x.device}"
+            )
+        
+        if x.size(-1) != self.input_features:
+            raise ValueError(
+                f"Expected {self.input_features} input features but got {x.size(-1)}"
+            )
+            
+        # Move linear layer to input device if needed
+        if x.device != self.linear.weight.device:
+            logger.warning(
+                f"Device mismatch - Input: {x.device}, Layer: {self.linear.weight.device}. "
+                "Moving layer to match input device."
+            )
+            self.linear = self.linear.to(x.device)
+            
         return self.linear(x)
+    
 
+
+class CombinedEmbedding(nn.Module):
+    def __init__(self, d_model: int, input_features: int, max_seq_len: int = 5000, dropout: float = 0.1):
+        super().__init__()
+        self.debug_counter = 0
+        logger.debug(
+            f"Initializing CombinedEmbedding - "
+            f"d_model: {d_model}, features: {input_features}, "
+            f"seq_len: {max_seq_len}, dropout: {dropout}"
+        )
+        
+        self.d_model = d_model
+        self.value_embedding = ValueEmbedding(d_model, input_features)
+        
+        # Create positional encoding
+        position = torch.arange(max_seq_len).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model))
+        pe = torch.zeros(1, max_seq_len, d_model)
+        pe[0, :, 0::2] = torch.sin(position * div_term)
+        pe[0, :, 1::2] = torch.cos(position * div_term)
+        self.register_buffer('pe', pe)
+        
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x: Tensor) -> Tensor:
+        self.debug_counter += 1
+        debug_enabled = self.debug_counter % 100 == 1
+
+        try:
+            if debug_enabled:
+                logger.debug(
+                    f"CombinedEmbedding forward - "
+                    f"input shape: {x.shape}, "
+                    f"device: {x.device}"
+                )
+            
+            if len(x.shape) == 2:
+                x = x.unsqueeze(0)
+                
+            # Get value embeddings (this will handle device consistency internally)
+            value_emb = self.value_embedding(x)
+            
+            # Ensure positional encoding is on the same device
+            seq_len = x.size(1)
+            pos_emb = self.pe[:, :seq_len].to(x.device)
+            
+            # Combine embeddings
+            combined = value_emb + pos_emb
+            
+            return self.dropout(combined)
+            
+        except Exception as e:
+            logger.error(f"CombinedEmbedding forward failed: {str(e)}")
+            logger.debug("Device mapping:")
+            logger.debug(f"Input: {x.device}")
+            logger.debug(f"Value embedding: {next(self.value_embedding.parameters()).device}")
+            logger.debug(f"PE buffer: {self.pe.device}")
+            raise
+            
+    def _create_positional_encoding(self, max_len: int, d_model: int) -> Tensor:
+        """Create enhanced positional encoding with proper initialization."""
+        position = torch.arange(max_len).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model))
+        
+        pe = torch.zeros(1, max_len, d_model)
+        pe[0, :, 0::2] = torch.sin(position * div_term)
+        pe[0, :, 1::2] = torch.cos(position * div_term)
+        
+        return pe
 
 class PositionalEncoding(nn.Module):
     """Fixed sinusoidal positional encoding."""
@@ -82,39 +183,3 @@ class TotalEmbedding(nn.Module):
             self.linear_embedding_weight.weight[0][0] * value_embedded + 
             self.linear_embedding_weight.weight[0][1] * pe
         )
-
-
-class CombinedEmbedding(nn.Module):
-    """Alternative combined embedding with separate value and positional components."""
-
-    def __init__(
-            self,
-            d_model: int,
-            n_features: int,
-            max_seq_len: int = 5000,
-            dropout: float = 0.1
-    ):
-        super().__init__()
-
-        # Core embeddings
-        self.value_embedding = ValueEmbedding(d_model, n_features)
-        self.positional_encoding = PositionalEncoding(d_model, max_seq_len)
-        
-        # Dropout for regularization
-        self.dropout = nn.Dropout(p=dropout)
-
-        # Learnable weights for combining embeddings
-        self.alpha = nn.Parameter(torch.ones(1))
-        self.beta = nn.Parameter(torch.ones(1))
-
-    def forward(self, x: Tensor) -> Tensor:
-        """
-        Args:
-            x: Input tensor of shape [batch_size, seq_len, features]
-        Returns:
-            Combined embedding tensor of shape [batch_size, seq_len, d_model]
-        """
-        value_embedded = self.value_embedding(x)
-        pos_embedded = self.positional_encoding(x)
-
-        return self.dropout(self.alpha * value_embedded + self.beta * pos_embedded)

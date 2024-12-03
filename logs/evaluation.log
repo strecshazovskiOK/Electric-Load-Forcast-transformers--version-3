@@ -1,0 +1,1 @@
+{"timestamp": "2024-12-03T20:44:50.455979", "level": "INFO", "module": "logger", "message": "Initializing evaluator", "component": "evaluator", "resolution_minutes": 60, "has_scaler": true, "metric_config": {"resolution_minutes": 60, "rmse_threshold": 0.05, "mae_threshold": 0.05, "mape_threshold": 0.05, "r2_threshold": 0.95, "seasonal_period": 168, "epsilon": 1e-08}}

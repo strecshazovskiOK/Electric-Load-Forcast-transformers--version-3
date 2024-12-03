@@ -1,5 +1,5 @@
 # evaluation/metrics.py
-from typing import Dict
+from typing import Dict, Optional
 
 import torch
 import numpy as np
@@ -10,7 +10,12 @@ from torch import Tensor
 
 @dataclass
 class MetricConfig:
-    """Configuration for metric calculation."""
+    """Configuration for metric calculations."""
+    resolution_minutes: Optional[int] = None
+    rmse_threshold: float = 0.05
+    mae_threshold: float = 0.05
+    mape_threshold: float = 0.05
+    r2_threshold: float = 0.95
     seasonal_period: int = 168  # Default weekly seasonality
     epsilon: float = 1e-8  # Small value for numerical stability
 

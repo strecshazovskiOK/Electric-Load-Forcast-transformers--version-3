@@ -1,11 +1,11 @@
 # models/interfaces.py
 """Core interfaces and types for the model system."""
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Tuple
+from typing import Any, Optional, Tuple, Union
 import torch
 from torch.utils.data import Dataset
 
-from training.base.base_trainer import TrainingReport
+from training.reports.training_report import TrainingReport
 
 
 class ModelInterface(ABC):
@@ -22,21 +22,34 @@ class ModelInterface(ABC):
     def get_output_dims(self) -> int:
         pass
 
+
 class WrapperInterface(ABC):
     """Base interface for model wrappers."""
     @abstractmethod
     def train(
-
             self,
-
             train_dataset: Dataset[Any],
-
             validation_dataset: Optional[Dataset[Any]] = None
-
     ) -> TrainingReport:
-
         """Train the model."""
+        pass
 
+    @abstractmethod
+    def training_step(
+            self,
+            batch_input: Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]],
+            batch_target: torch.Tensor
+    ) -> float:
+        """Perform a single training step and return loss."""
+        pass
+
+    @abstractmethod
+    def validation_step(
+            self,
+            batch_input: Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]],
+            batch_target: torch.Tensor
+    ) -> float:
+        """Perform a single validation step and return loss."""
         pass
 
     @abstractmethod

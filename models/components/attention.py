@@ -6,6 +6,8 @@ import torch.nn.functional as F
 from typing import Optional, Tuple
 from torch.nn.modules.linear import NonDynamicallyQuantizableLinear
 from torch.nn.init import constant_, xavier_normal_, xavier_uniform_
+from utils.logging.logger import Logger
+from utils.logging.config import LoggerConfig, LogLevel
 
 
 class MultiHeadAttention(nn.Module):
@@ -37,6 +39,15 @@ class MultiHeadAttention(nn.Module):
                  kdim=None, vdim=None, batch_first=False, device=None, dtype=None) -> None:
         factory_kwargs = {'device': device, 'dtype': dtype}
         super().__init__()
+        
+        # Initialize logger
+        logger_config = LoggerConfig(
+            level=LogLevel.INFO,
+            component_name="MultiHeadAttention",
+            include_timestamp=True
+        )
+        self.logger = Logger.get_logger(__name__, logger_config)
+        
         self.embed_dim = embed_dim
         self.kdim = kdim if kdim is not None else embed_dim
         self.vdim = vdim if vdim is not None else embed_dim
@@ -73,6 +84,8 @@ class MultiHeadAttention(nn.Module):
 
         self.add_zero_attn = add_zero_attn
         self._reset_parameters()
+        self.debug_counter = 0
+        self.max_debug_prints = 3  # Only print first 3 times
 
     def _reset_parameters(self):
         if self._qkv_same_embed_dim:
@@ -90,10 +103,26 @@ class MultiHeadAttention(nn.Module):
         if self.bias_v is not None:
             xavier_normal_(self.bias_v)
 
-    def forward(self, query: Tensor, key: Tensor, value: Tensor, key_padding_mask: Optional[Tensor] = None,
+    def forward(self, query: Tensor, key: Tensor, value: Tensor, key_padding_mask=None,
                 need_weights: bool = True, attn_mask: Optional[Tensor] = None) -> Tuple[Tensor, Optional[Tensor]]:
         if self.batch_first:
             query, key, value = [x.transpose(1, 0) for x in (query, key, value)]
+
+        # Only log debug info for first few calls
+        if self.debug_counter < self.max_debug_prints:
+            self.logger.debug(f"MultiHeadAttention forward pass (call {self.debug_counter + 1}/{self.max_debug_prints})", {
+                "query_device": str(query.device),
+                "key_device": str(key.device),
+                "value_device": str(value.device),
+                "attention_mask_device": str(attn_mask.device) if attn_mask is not None else "None",
+                "key_padding_mask_device": str(key_padding_mask.device) if key_padding_mask is not None else "None"
+            })
+            self.debug_counter += 1
+
+        # Ensure attn_mask is on the correct device
+        if attn_mask is not None:
+            attn_mask = attn_mask.to(query.device)
+
 
         if not self._qkv_same_embed_dim:
             attn_output, attn_output_weights = F.multi_head_attention_forward(
@@ -131,6 +160,14 @@ class ConvolutionalAttention(nn.Module):
             dropout: float = 0.1
     ):
         super().__init__()
+        # Initialize logger
+        logger_config = LoggerConfig(
+            level=LogLevel.INFO,
+            component_name="ConvolutionalAttention",
+            include_timestamp=True
+        )
+        self.logger = Logger.get_logger(__name__, logger_config)
+        
         self.attention = MultiHeadAttention(d_model, n_heads, dropout)
         padding = (kernel_size - 1) // 2
 
@@ -171,6 +208,14 @@ class ProbSparseAttention(nn.Module):
             dropout: float = 0.1
     ):
         super().__init__()
+        # Initialize logger
+        logger_config = LoggerConfig(
+            level=LogLevel.INFO,
+            component_name="ProbSparseAttention",
+            include_timestamp=True
+        )
+        self.logger = Logger.get_logger(__name__, logger_config)
+        
         self.attention = MultiHeadAttention(d_model, n_heads, dropout)
         self.factor = factor
 

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "utils/models/__init__.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1733247006178,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1733247006178,
+            "name": "Commit-0",
+            "content": "\r\nfrom dataclasses import dataclass\r\nfrom typing import Dict, List, Any\r\nfrom datetime import datetime\r\n\r\n@dataclass\r\nclass PredictionComparison:\r\n    \"\"\"Stores prediction vs actual comparison.\"\"\"\r\n    timestamp: datetime\r\n    predicted: float\r\n    actual: float\r\n\r\n@dataclass\r\nclass EvaluationResult:\r\n    \"\"\"Stores evaluation results.\"\"\"\r\n    total_metrics: Dict[str, float]\r\n    variable_metrics: Dict[str, Dict[str, float]]\r\n    comparisons: List[PredictionComparison]"
+        }
+    ]
+}

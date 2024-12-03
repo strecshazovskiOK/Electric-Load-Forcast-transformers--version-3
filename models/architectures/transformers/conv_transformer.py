@@ -49,7 +49,8 @@ class ConvEncoderLayer(TransformerEncoderLayer):
         self,
         src: Tensor,
         src_mask: Optional[Tensor] = None,
-        src_key_padding_mask: Optional[Tensor] = None
+        src_key_padding_mask: Optional[Tensor] = None,
+        is_causal: bool = False
     ) -> Tensor:
         # Apply convolutions to queries and keys
         q = self.conv_q(src.transpose(1, 2)).transpose(1, 2)
@@ -118,7 +119,9 @@ class ConvDecoderLayer(TransformerDecoderLayer):
         tgt_mask: Optional[Tensor] = None,
         memory_mask: Optional[Tensor] = None,
         tgt_key_padding_mask: Optional[Tensor] = None,
-        memory_key_padding_mask: Optional[Tensor] = None
+        memory_key_padding_mask: Optional[Tensor] = None,
+        tgt_is_causal: bool = False,
+        memory_is_causal: bool = False
     ) -> Tensor:
         # Apply convolutions
         q_tgt = self.conv_q(tgt.transpose(1, 2)).transpose(1, 2)
@@ -149,10 +152,8 @@ class ConvDecoderLayer(TransformerDecoderLayer):
 
 @ModelFactory.register(ModelType.CONV_TRANSFORMER)
 class ConvolutionalTransformer(BaseModel):
-    """Transformer with convolutional attention mechanism."""
-
     def __init__(self, config: Dict[str, Any]):
-        super().__init__(config)  # Fix: Pass config to parent class
+        super().__init__(config)
         
         # Extract configuration
         self.d_model = config['d_model']
@@ -163,6 +164,8 @@ class ConvolutionalTransformer(BaseModel):
         self.dropout = config.get('dropout', 0.1)
         self.input_features = config['input_features']
         self.kernel_size = config.get('kernel_size', 3)
+        self.output_dim = 1  # We only want to predict energy consumption
+        self.transformer_labels_count = config.get('transformer_labels_count', 48)
         
         # Create encoder
         encoder_layer = ConvEncoderLayer(
@@ -200,45 +203,54 @@ class ConvolutionalTransformer(BaseModel):
             dropout=self.dropout
         )
 
-        # Output projection
-        self.projection = nn.Linear(self.d_model, 1, bias=True)
+        # Output projection - only predict energy consumption
+        self.projection = nn.Linear(self.d_model, self.output_dim, bias=True)
         self.relu = nn.ReLU()
 
-    def forward(
-        self,
-        x_enc: Tensor,
-        x_dec: Tensor,
-        src_mask: Optional[Tensor] = None,
-        tgt_mask: Optional[Tensor] = None
-    ) -> Tensor:
+    def forward(self, x: Tensor, x_dec: Optional[Tensor] = None) -> Tensor:
         """
-        Forward pass with convolutional attention.
-
+        Forward pass supporting both single-input and encoder-decoder modes.
+        
         Args:
-            x_enc: Encoder input [batch_size, seq_enc_length, features]
-            x_dec: Decoder input [batch_size, seq_dec_length, features]
-            src_mask: Optional mask for encoder
-            tgt_mask: Optional mask for decoder
+            x: Input tensor of shape [batch_size, seq_length, features]
+            x_dec: Optional decoder input tensor
+        Returns:
+            Output tensor of predictions [batch_size, seq_length, 1]
         """
+        if x_dec is None:
+            # Split input sequence for encoder and decoder
+            split_point = x.size(1) - self.transformer_labels_count
+            x_enc = x[:, :split_point, :]  # Keep all features for encoding
+            x_dec = x[:, split_point:, :]  # Keep all features for decoding
+        else:
+            x_enc = x
+
         # Apply embeddings
         enc_embedding = self.encoder_embedding(x_enc)
         dec_embedding = self.decoder_embedding(x_dec)
 
+        # Create appropriate mask
+        tgt_mask = self.generate_square_subsequent_mask(dec_embedding.size(1)).to(x.device)
+
         # Run through encoder and decoder
-        memory = self.encoder(enc_embedding, mask=src_mask)
-        output = self.decoder(dec_embedding, memory, tgt_mask=tgt_mask)
+        memory = self.encoder(enc_embedding)
+        decoder_output = self.decoder(dec_embedding, memory, tgt_mask=tgt_mask)
 
-        # Project to output dimension
-        return self.projection(self.relu(output))
+        # Project to energy consumption prediction only
+        output = self.projection(self.relu(decoder_output))
 
-    def create_masks(self, src_len: int, tgt_len: int) -> Tuple[Optional[Tensor], Tensor]:
-        """Create appropriate masks for training."""
-        src_mask = None
-        tgt_mask = self.generate_square_subsequent_mask(tgt_len)
-        return src_mask, tgt_mask
+        return output  # Shape: [batch_size, seq_length, 1]
 
     def generate_square_subsequent_mask(self, sz: int) -> Tensor:
         """Generate causal mask for decoder."""
         mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
         mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
         return mask
+
+    def get_input_dims(self) -> int:
+        """Return the number of input features."""
+        return self.input_features
+
+    def get_output_dims(self) -> int:
+        """Return the number of output dimensions."""
+        return self.output_dim

@@ -9,20 +9,22 @@ from sklearn.preprocessing import StandardScaler
 from models.base.base_wrapper import BaseWrapper
 from models.registry.model_types import ModelType
 from training.reports.training_report import TrainingReport
+from models.interfaces import WrapperInterface
 
 
 class SklearnEstimator(Protocol):
     """Protocol defining the required interface for sklearn estimators."""
     def fit(self, X: np.ndarray, y: np.ndarray) -> "SklearnEstimator": ...
     def predict(self, X: np.ndarray) -> np.ndarray: ...
+    def partial_fit(self, X: np.ndarray, y: np.ndarray) -> "SklearnEstimator": ...
 
 
-class SklearnWrapper(BaseWrapper):
+class SklearnWrapper(BaseWrapper, WrapperInterface):
     """Wrapper for scikit-learn models providing consistent interface."""
 
     def __init__(
             self,
-            model: SklearnEstimator,  # Updated type hint using the Protocol
+            model: SklearnEstimator,
             model_type: ModelType,
             config: Dict[str, Any]
     ):
@@ -96,6 +98,63 @@ class SklearnWrapper(BaseWrapper):
 
         return report
 
+    def training_step(
+            self,
+            batch_input: Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]],
+            batch_target: torch.Tensor
+    ) -> float:
+        """Perform single training step and return loss."""
+        # Convert to numpy for sklearn
+        if isinstance(batch_input, tuple):
+            # For compatibility, extract the first element
+            batch_input = batch_input[0]
+        X = batch_input.numpy()
+        y = batch_target.numpy()
+        
+        # Scale data if needed
+        if self.scaler_x is not None:
+            X = self.scaler_x.transform(X)
+        if self.scaler_y is not None:
+            y = self.scaler_y.transform(y.reshape(-1, 1)).ravel()
+
+        # Fit the model on this batch
+        if hasattr(self.model, 'partial_fit'):
+            self.model.partial_fit(X, y)
+        else:
+            self.model.fit(X, y)
+        self.is_fitted = True
+        
+        # Calculate loss
+        y_pred = self.model.predict(X)
+        loss = np.mean((y_pred - y) ** 2)  # MSE loss
+        return float(loss)
+
+    def validation_step(
+            self,
+            batch_input: Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]],
+            batch_target: torch.Tensor
+    ) -> float:
+        """Perform single validation step and return loss."""
+        # Convert to numpy for sklearn
+        if isinstance(batch_input, tuple):
+            # For compatibility, extract the first element
+            batch_input = batch_input[0]
+        X = batch_input.numpy()
+        y = batch_target.numpy()
+        
+        # Scale data if needed
+        if self.scaler_x is not None:
+            X = self.scaler_x.transform(X)
+        if self.scaler_y is not None:
+            y = self.scaler_y.transform(y.reshape(-1, 1)).ravel()
+
+        # Make predictions
+        y_pred = self.model.predict(X)
+        
+        # Calculate loss
+        loss = np.mean((y_pred - y) ** 2)  # MSE loss
+        return float(loss)
+
     def predict(self, dataset: Dataset) -> Tuple[torch.Tensor, torch.Tensor]:
         """Make predictions using the scikit-learn model."""
         if not self.is_fitted:
@@ -103,7 +162,7 @@ class SklearnWrapper(BaseWrapper):
 
         # Prepare data
         X, y = self._prepare_data(dataset)
-        X, _ = self._scale_data(X, y, fit=False)
+        X, y = self._scale_data(X, y, fit=False)
 
         # Make predictions
         y_pred = self.model.predict(X)
@@ -111,6 +170,7 @@ class SklearnWrapper(BaseWrapper):
         # Inverse transform predictions if needed
         if self.scaler_y is not None:
             y_pred = self.scaler_y.inverse_transform(y_pred.reshape(-1, 1)).ravel()
+            y = self.scaler_y.inverse_transform(y.reshape(-1, 1)).ravel()
 
         return torch.tensor(y_pred), torch.tensor(y)
 

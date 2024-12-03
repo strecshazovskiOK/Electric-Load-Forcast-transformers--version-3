@@ -1,3 +1,4 @@
+# path: training/config.py
 from dataclasses import dataclass, field
 
 @dataclass
